@@ -1,14 +1,50 @@
-// const fs = require('fs/promises')
+const { randomUUID } = require("crypto");
+const { readFile, writeFile } = require("./db");
 
-const listContacts = async () => {}
+const listContacts = async () => {
+  return await readFile();
+};
 
-const getContactById = async (contactId) => {}
+const getContactById = async (contactId) => {
+  const contacts = await readFile();
+  const [contact] = contacts.filter((contact) => contact.id === contactId);
+  return contact;
+};
 
-const removeContact = async (contactId) => {}
+const addContact = async (body) => {
+  const contacts = await readFile();
+  const newContact = {
+    id: randomUUID(),
+    ...body,
+  };
+  contacts.push(newContact);
+  await writeFile(contacts);
+  return newContact;
+};
 
-const addContact = async (body) => {}
+const removeContact = async (contactId) => {
+  const contacts = await readFile();
+  const index = contacts.findIndex((contact) => contact.id === contactId);
 
-const updateContact = async (contactId, body) => {}
+  if (index !== -1) {
+    const [contact] = contacts.splice(index, 1);
+    await writeFile(contacts);
+    return contact;
+  }
+  return null;
+};
+
+const updateContact = async (contactId, body) => {
+  const contacts = await readFile();
+  const index = contacts.findIndex((contact) => contact.id === contactId);
+
+  if (index !== -1) {
+    contacts[index] = { ...contacts[index], ...body };
+    await writeFile(contacts);
+    return contacts[index];
+  }
+  return null;
+};
 
 module.exports = {
   listContacts,
@@ -16,4 +52,4 @@ module.exports = {
   removeContact,
   addContact,
   updateContact,
-}
+};
